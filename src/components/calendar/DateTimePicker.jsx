@@ -4,15 +4,7 @@ import { de } from "date-fns/locale";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-// Build 30-minute time options for the whole day
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
-  const h = Math.floor(i / 2);
-  const m = i % 2 === 0 ? 0 : 30;
-  const value = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-  return value;
-});
+import ClockPicker from "./ClockPicker";
 
 function parseValue(value) {
   if (!value) return null;
@@ -26,6 +18,7 @@ function toLocalString(date) {
 
 export default function DateTimePicker({ value, onChange, allDay }) {
   const [open, setOpen] = React.useState(false);
+  const [timeOpen, setTimeOpen] = React.useState(false);
   const date = parseValue(allDay ? `${value?.slice(0, 10)}T00:00` : value) || new Date();
   const timeValue = format(date, "HH:mm");
 
@@ -38,8 +31,7 @@ export default function DateTimePicker({ value, onChange, allDay }) {
     setOpen(false);
   };
 
-  const handleTimeChange = (t) => {
-    const [h, m] = t.split(":").map(Number);
+  const handleClockChange = (h, m) => {
     const merged = setMinutes(setHours(date, h), m);
     onChange(toLocalString(merged));
   };
@@ -62,17 +54,25 @@ export default function DateTimePicker({ value, onChange, allDay }) {
       </Popover>
 
       {!allDay && (
-        <Select value={timeValue} onValueChange={handleTimeChange}>
-          <SelectTrigger className="w-28 h-11">
-            <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="max-h-64">
-            {TIME_OPTIONS.map((t) => (
-              <SelectItem key={t} value={t}>{t}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={timeOpen} onOpenChange={setTimeOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="w-28 flex items-center gap-2 h-11 px-3 rounded-md border border-input bg-transparent text-sm hover:bg-accent transition-colors"
+            >
+              <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+              <span className="tabular-nums">{timeValue}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <ClockPicker
+              hour={date.getHours()}
+              minute={date.getMinutes()}
+              onChange={handleClockChange}
+              onDone={() => setTimeOpen(false)}
+            />
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );
