@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, MapPin, X, Plus, Mail } from "lucide-react";
+import { Trash2, MapPin, X, Plus, Mail, ChevronRight } from "lucide-react";
 import { CATEGORIES } from "@/lib/calendarColors";
 import IconPicker from "./IconPicker";
 import ColorPicker from "./ColorPicker";
@@ -36,6 +36,7 @@ function toInput(dt) {
 export default function EventDialog({ open, onOpenChange, event, calendars, defaultDate, onSave, onDelete }) {
   const [form, setForm] = React.useState(empty());
   const [inviteEmail, setInviteEmail] = React.useState("");
+  const [showMore, setShowMore] = React.useState(false);
 
   React.useEffect(() => {
     if (!open) return;
@@ -53,6 +54,7 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
       }));
     }
     setInviteEmail("");
+    setShowMore(false);
   }, [open, event, defaultDate, calendars]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -168,51 +170,64 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
             </div>
           )}
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Ort</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input className="pl-9" placeholder="Ort hinzufügen" value={form.location} onChange={(e) => set("location", e.target.value)} />
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowMore((s) => !s)}
+            className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors pt-1"
+          >
+            <ChevronRight className={`w-4 h-4 transition-transform ${showMore ? "rotate-90" : ""}`} />
+            Weitere Optionen
+          </button>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Beschreibung</Label>
-            <Textarea placeholder="Notizen..." value={form.description} onChange={(e) => set("description", e.target.value)} className="h-20" />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Farbe</Label>
-            <ColorPicker value={form.color} onChange={(v) => set("color", v)} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Symbol</Label>
-            <IconPicker value={form.icon} onChange={(v) => set("icon", v)} />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Gäste einladen</Label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input className="pl-9" type="email" placeholder="email@beispiel.de" value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addInvitee(); } }} />
+          {showMore && (
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Ort</Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input className="pl-9" placeholder="Ort hinzufügen" value={form.location} onChange={(e) => set("location", e.target.value)} />
+                </div>
               </div>
-              <Button type="button" variant="outline" size="icon" onClick={addInvitee}><Plus className="w-4 h-4" /></Button>
-            </div>
-            {form.invitees.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {form.invitees.map((inv) => (
-                  <span key={inv.email} className="inline-flex items-center gap-1 text-xs bg-secondary px-2 py-1 rounded-full">
-                    {inv.email}
-                    <button onClick={() => removeInvitee(inv.email)}><X className="w-3 h-3 text-muted-foreground hover:text-destructive" /></button>
-                  </span>
-                ))}
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Beschreibung</Label>
+                <Textarea placeholder="Notizen..." value={form.description} onChange={(e) => set("description", e.target.value)} className="h-20" />
               </div>
-            )}
-          </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Farbe</Label>
+                <ColorPicker value={form.color} onChange={(v) => set("color", v)} />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Symbol</Label>
+                <IconPicker value={form.icon} onChange={(v) => set("icon", v)} />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Gäste einladen</Label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input className="pl-9" type="email" placeholder="email@beispiel.de" value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addInvitee(); } }} />
+                  </div>
+                  <Button type="button" variant="outline" size="icon" onClick={addInvitee}><Plus className="w-4 h-4" /></Button>
+                </div>
+                {form.invitees.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {form.invitees.map((inv) => (
+                      <span key={inv.email} className="inline-flex items-center gap-1 text-xs bg-secondary px-2 py-1 rounded-full">
+                        {inv.email}
+                        <button onClick={() => removeInvitee(inv.email)}><X className="w-3 h-3 text-muted-foreground hover:text-destructive" /></button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
