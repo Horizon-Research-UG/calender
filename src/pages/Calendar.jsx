@@ -17,6 +17,7 @@ import TimeGridView from "@/components/calendar/TimeGridView";
 import EventDialog from "@/components/calendar/EventDialog";
 import CalendarDialog from "@/components/calendar/CalendarDialog";
 import InvitesDialog from "@/components/calendar/InvitesDialog";
+import SettingsDialog from "@/components/calendar/SettingsDialog";
 
 export default function CalendarPage() {
   const { user, isAuthenticated, navigateToLogin } = useAuth();
@@ -33,6 +34,7 @@ export default function CalendarPage() {
   const [eventDialog, setEventDialog] = React.useState({ open: false, event: null, date: null });
   const [calDialog, setCalDialog] = React.useState({ open: false, calendar: null });
   const [invitesOpen, setInvitesOpen] = React.useState(false);
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
 
   const calendarsById = React.useMemo(() => {
     const m = {};
@@ -186,6 +188,14 @@ export default function CalendarPage() {
     loadData();
   };
 
+  const importEvents = async (parsed) => {
+    if (!parsed.length) { toast.error("Keine Termine in der Datei gefunden"); return; }
+    await base44.entities.Event.bulkCreate(parsed);
+    toast.success(`${parsed.length} Termine importiert`);
+    setSettingsOpen(false);
+    loadData();
+  };
+
   const acceptInvite = async (inv) => {
     await base44.entities.CalendarInvite.update(inv.id, { status: "accepted" });
     toast.success("Einladung angenommen");
@@ -226,6 +236,7 @@ export default function CalendarPage() {
       onNewEvent={() => { openNewEvent(); setSidebarOpen(false); }}
       onNewCalendar={() => { setCalDialog({ open: true, calendar: null }); setSidebarOpen(false); }}
       onEditCalendar={(c) => { setCalDialog({ open: true, calendar: c }); setSidebarOpen(false); }}
+      onOpenSettings={() => { setSettingsOpen(true); setSidebarOpen(false); }}
     />
   );
 
@@ -301,6 +312,13 @@ export default function CalendarPage() {
         invites={invites}
         onAccept={acceptInvite}
         onDecline={declineInvite}
+      />
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        calendars={calendars}
+        events={events}
+        onImport={importEvents}
       />
     </div>
   );

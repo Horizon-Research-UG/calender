@@ -1,11 +1,11 @@
 import React from "react";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MiniCalendar from "./MiniCalendar";
 
 export default function CalendarSidebar({
   selectedDate, onSelectDate, calendars, hiddenIds, onToggleCalendar,
-  onNewEvent, onNewCalendar, onEditCalendar,
+  onNewEvent, onNewCalendar, onEditCalendar, onOpenSettings,
 }) {
   const myCalendars = calendars.filter((c) => c.type === "personal");
   const groupCalendars = calendars.filter((c) => c.type === "group");
@@ -56,9 +56,14 @@ export default function CalendarSidebar({
         {renderGroup("Gruppen", groupCalendars)}
       </div>
 
-      <Button variant="ghost" onClick={onNewCalendar} className="w-full justify-start text-muted-foreground mt-2">
-        <Plus className="w-4 h-4 mr-2" /> Kalender hinzufügen
-      </Button>
+      <div className="mt-2 pt-2 border-t border-border">
+        <Button variant="ghost" onClick={onNewCalendar} className="w-full justify-start text-muted-foreground">
+          <Plus className="w-4 h-4 mr-2" /> Kalender hinzufügen
+        </Button>
+        <Button variant="ghost" onClick={onOpenSettings} className="w-full justify-start text-muted-foreground">
+          <Settings className="w-4 h-4 mr-2" /> Weitere Einstellungen
+        </Button>
+      </div>
     </div>
   );
 }
