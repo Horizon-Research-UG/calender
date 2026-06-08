@@ -73,23 +73,39 @@ export default function ClockPicker({ hour, minute, onChange, onDone }) {
 
   return (
     <div className="flex flex-col items-center gap-4 p-4 select-none">
-      {/* Digital display */}
+      {/* Digital display — editable inputs */}
       <div className="flex items-center gap-1 text-3xl font-semibold tabular-nums">
-        <button
-          type="button"
-          onClick={() => setMode("hour")}
-          className={`px-2 rounded-md ${isHour ? "bg-primary/10 text-primary" : "text-foreground"}`}
-        >
-          {String(hour).padStart(2, "0")}
-        </button>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={String(hour).padStart(2, "0")}
+          onFocus={(e) => { setMode("hour"); e.target.select(); }}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\D/g, "").slice(-2);
+            let h = parseInt(raw, 10);
+            if (isNaN(h)) h = 0;
+            if (h > 23) h = 23;
+            onChange(h, minute);
+          }}
+          className={`w-14 text-center px-2 py-0.5 rounded-md outline-none focus:ring-2 focus:ring-primary/40
+            ${isHour ? "bg-primary/10 text-primary" : "text-foreground"}`}
+        />
         <span>:</span>
-        <button
-          type="button"
-          onClick={() => setMode("minute")}
-          className={`px-2 rounded-md ${!isHour ? "bg-primary/10 text-primary" : "text-foreground"}`}
-        >
-          {String(minute).padStart(2, "0")}
-        </button>
+        <input
+          type="text"
+          inputMode="numeric"
+          value={String(minute).padStart(2, "0")}
+          onFocus={(e) => { setMode("minute"); e.target.select(); }}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\D/g, "").slice(-2);
+            let m = parseInt(raw, 10);
+            if (isNaN(m)) m = 0;
+            if (m > 59) m = 59;
+            onChange(hour, m);
+          }}
+          className={`w-14 text-center px-2 py-0.5 rounded-md outline-none focus:ring-2 focus:ring-primary/40
+            ${!isHour ? "bg-primary/10 text-primary" : "text-foreground"}`}
+        />
       </div>
 
       {/* Clock face */}
