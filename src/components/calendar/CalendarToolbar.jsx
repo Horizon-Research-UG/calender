@@ -17,7 +17,7 @@ export default function CalendarToolbar({ view, onViewChange, date, label, onPre
         <button onClick={onMenu} className="lg:hidden p-2 rounded-lg hover:bg-secondary">
           <Menu className="w-5 h-5" />
         </button>
-        <Button variant="outline" size="sm" onClick={onToday} className="hidden sm:flex rounded-lg">Heute</Button>
+        <Button variant="outline" size="sm" onClick={onToday} className="rounded-lg">Heute</Button>
         <div className="flex items-center">
           <button onClick={onPrev} className="p-1.5 rounded-lg hover:bg-secondary"><ChevronLeft className="w-5 h-5" /></button>
           <button onClick={onNext} className="p-1.5 rounded-lg hover:bg-secondary"><ChevronRight className="w-5 h-5" /></button>
