@@ -3,15 +3,15 @@ import { startOfWeek, addDays, isSameDay, format, differenceInMinutes, startOfDa
 import { de } from "date-fns/locale";
 import { getContrastText } from "@/lib/calendarColors";
 import { getIcon } from "@/lib/eventIcons";
+import CurrentTimeLine from "./CurrentTimeLine";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
-const HOUR_HEIGHT = 56;
 
-function PositionedEvent({ event, color, onClick }) {
+function PositionedEvent({ event, color, onClick, hourHeight }) {
   const start = event._instanceStart;
   const end = event._instanceEnd;
-  const top = (differenceInMinutes(start, startOfDay(start)) / 60) * HOUR_HEIGHT;
-  const height = Math.max(22, (differenceInMinutes(end, start) / 60) * HOUR_HEIGHT - 2);
+  const top = (differenceInMinutes(start, startOfDay(start)) / 60) * hourHeight;
+  const height = Math.max(26, (differenceInMinutes(end, start) / 60) * hourHeight - 2);
   const bg = event.color || color || "#6366F1";
   const text = getContrastText(bg);
   const IconCmp = getIcon(event.icon);
@@ -19,29 +19,31 @@ function PositionedEvent({ event, color, onClick }) {
   return (
     <button
       onClick={(e) => { e.stopPropagation(); onClick?.(event); }}
-      className="absolute left-0.5 right-0.5 rounded-md px-1.5 py-1 text-left overflow-hidden shadow-sm transition-transform hover:scale-[1.01] z-10"
+      className="absolute left-1 right-1 rounded-lg px-2 py-1 text-left overflow-hidden shadow-sm transition-transform hover:scale-[1.01] z-10"
       style={{ top, height, backgroundColor: bg, color: text }}
     >
-      <div className="flex items-center gap-1">
-        <IconCmp className="w-3 h-3 shrink-0" />
-        <span className="text-[11px] font-semibold truncate">{event.title}</span>
+      <div className="flex items-center gap-1.5">
+        <IconCmp className="w-3.5 h-3.5 shrink-0" />
+        <span className="text-xs font-semibold truncate">{event.title}</span>
       </div>
-      {height > 34 && (
-        <div className="text-[10px] opacity-90">{format(start, "HH:mm")} – {format(end, "HH:mm")}</div>
+      {height > 38 && (
+        <div className="text-[11px] opacity-90">{format(start, "HH:mm")} – {format(end, "HH:mm")}</div>
       )}
     </button>
   );
 }
 
 export default function TimeGridView({ date, events, calendarsById, mode, onEventClick, onSlotClick }) {
-  const days = mode === "day"
+  const isDay = mode === "day";
+  const HOUR_HEIGHT = isDay ? 80 : 56;
+  const days = isDay
     ? [date]
     : Array.from({ length: 7 }, (_, i) => addDays(startOfWeek(date, { weekStartsOn: 1 }), i));
 
   const scrollRef = React.useRef(null);
   React.useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 7 * HOUR_HEIGHT;
-  }, []);
+  }, [HOUR_HEIGHT]);
 
   return (
     <div className="flex flex-col h-full">
@@ -49,6 +51,21 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
         <div className="w-14 shrink-0" />
         {days.map((day) => {
           const isToday = isSameDay(day, new Date());
+          if (isDay) {
+            return (
+              <div key={day.toISOString()} className="flex-1 flex items-center gap-3 px-4 py-3 border-l border-border">
+                <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-2xl shrink-0
+                  ${isToday ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"}`}>
+                  <span className="text-[10px] uppercase tracking-wide opacity-80">{format(day, "EEE", { locale: de })}</span>
+                  <span className="text-xl font-bold leading-none">{format(day, "d")}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold capitalize">{format(day, "EEEE", { locale: de })}</span>
+                  <span className="text-xs text-muted-foreground capitalize">{format(day, "d. MMMM yyyy", { locale: de })}</span>
+                </div>
+              </div>
+            );
+          }
           return (
             <div key={day.toISOString()} className="flex-1 text-center py-2 border-l border-border">
               <div className="text-[11px] text-muted-foreground capitalize">{format(day, "EEE", { locale: de })}</div>
@@ -73,6 +90,7 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
           </div>
           {days.map((day) => {
             const dayEvents = events.filter((e) => isSameDay(e._instanceStart, day) && !e.all_day);
+            const isToday = isSameDay(day, new Date());
             return (
               <div key={day.toISOString()} className="flex-1 relative border-l border-border">
                 {HOURS.map((h) => (
@@ -83,12 +101,14 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
                     style={{ height: HOUR_HEIGHT }}
                   />
                 ))}
+                {isToday && <CurrentTimeLine hourHeight={HOUR_HEIGHT} />}
                 {dayEvents.map((ev, i) => (
                   <PositionedEvent
                     key={ev.id + "_" + i}
                     event={ev}
                     color={calendarsById[ev.calendar_id]?.color}
                     onClick={onEventClick}
+                    hourHeight={HOUR_HEIGHT}
                   />
                 ))}
               </div>
