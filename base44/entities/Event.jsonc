@@ -1,0 +1,111 @@
+{
+  "name": "Event",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Event title"
+    },
+    "description": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event start (ISO datetime)"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event end (ISO datetime)"
+    },
+    "all_day": {
+      "type": "boolean",
+      "default": false
+    },
+    "calendar_id": {
+      "type": "string",
+      "description": "ID of the calendar this event belongs to"
+    },
+    "color": {
+      "type": "string",
+      "description": "Hex color override for the event"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon name for the event",
+      "default": "Calendar"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "work",
+        "personal",
+        "family",
+        "health",
+        "social",
+        "travel",
+        "other"
+      ],
+      "default": "personal"
+    },
+    "recurrence": {
+      "type": "object",
+      "description": "Recurrence rule",
+      "properties": {
+        "frequency": {
+          "type": "string",
+          "enum": [
+            "none",
+            "daily",
+            "weekly",
+            "monthly",
+            "yearly"
+          ],
+          "default": "none"
+        },
+        "interval": {
+          "type": "number",
+          "default": 1
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "end_after": {
+          "type": "number"
+        }
+      }
+    },
+    "invitees": {
+      "type": "array",
+      "description": "Invited people and their RSVP status",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "yes",
+              "no",
+              "maybe"
+            ],
+            "default": "pending"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "title",
+    "start_time",
+    "end_time"
+  ]
+}

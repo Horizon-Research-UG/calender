@@ -1,0 +1,51 @@
+{
+  "name": "Calendar",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the calendar"
+    },
+    "color": {
+      "type": "string",
+      "description": "Hex color of the calendar",
+      "default": "#6366F1"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "personal",
+        "group"
+      ],
+      "default": "personal",
+      "description": "Personal or group calendar"
+    },
+    "members": {
+      "type": "array",
+      "description": "Members of the calendar with their roles",
+      "items": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "member"
+            ],
+            "default": "member"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "CalendarInvite",
+  "type": "object",
+  "properties": {
+    "calendar_id": {
+      "type": "string",
+      "description": "ID of the calendar being shared"
+    },
+    "calendar_name": {
+      "type": "string"
+    },
+    "invited_email": {
+      "type": "string",
+      "description": "Email of the invited person"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Email of the person who sent the invite"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "declined"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "calendar_id",
+    "invited_email"
+  ]
+}
