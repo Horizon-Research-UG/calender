@@ -11,6 +11,7 @@ import { Trash2, MapPin, X, Plus, Mail, ChevronRight } from "lucide-react";
 import { CATEGORIES } from "@/lib/calendarColors";
 import IconPicker from "./IconPicker";
 import ColorPicker from "./ColorPicker";
+import DateTimePicker from "./DateTimePicker";
 
 const empty = (defaults = {}) => ({
   title: "",
@@ -100,17 +101,13 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
             <Switch checked={form.all_day} onCheckedChange={(v) => set("all_day", v)} />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Start</Label>
-              <Input type={form.all_day ? "date" : "datetime-local"} value={form.all_day ? form.start_time?.slice(0,10) : form.start_time}
-                onChange={(e) => set("start_time", form.all_day ? e.target.value + "T00:00" : e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Ende</Label>
-              <Input type={form.all_day ? "date" : "datetime-local"} value={form.all_day ? form.end_time?.slice(0,10) : form.end_time}
-                onChange={(e) => set("end_time", form.all_day ? e.target.value + "T23:59" : e.target.value)} />
-            </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Start</Label>
+            <DateTimePicker value={form.start_time} allDay={form.all_day} onChange={(v) => set("start_time", v)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Ende</Label>
+            <DateTimePicker value={form.end_time} allDay={form.all_day} onChange={(v) => set("end_time", v)} />
           </div>
 
           <div className="space-y-1.5">
