@@ -70,7 +70,8 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
 
   const removeInvitee = (email) => set("invitees", form.invitees.filter((i) => i.email !== email));
 
-  const handleSave = () => {
+  const handleSave = (e) => {
+    e?.preventDefault?.();
     if (!form.title || !form.start_time || !form.end_time) return;
     const payload = {
       ...form,
@@ -87,6 +88,7 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
           <DialogTitle>{event ? "Termin bearbeiten" : "Neuer Termin"}</DialogTitle>
         </DialogHeader>
 
+        <form onSubmit={handleSave}>
         <div className="space-y-4 py-2">
           <Input
             autoFocus
@@ -233,9 +235,10 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
               <Trash2 className="w-4 h-4 mr-2" /> Löschen
             </Button>
           )}
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
-          <Button onClick={handleSave} disabled={!form.title || !form.start_time}>Speichern</Button>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Abbrechen</Button>
+          <Button type="submit" disabled={!form.title || !form.start_time}>Speichern</Button>
         </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );
