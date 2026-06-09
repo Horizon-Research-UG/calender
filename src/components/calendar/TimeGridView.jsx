@@ -94,12 +94,16 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
             return (
               <div key={day.toISOString()} className="flex-1 relative border-l border-border">
                 {HOURS.map((h) => (
-                  <div
-                    key={h}
-                    onClick={() => onSlotClick?.(day, h)}
-                    className="border-b border-border/50 hover:bg-secondary/30 cursor-pointer"
-                    style={{ height: HOUR_HEIGHT }}
-                  />
+                  <div key={h} className="border-b border-border/50" style={{ height: HOUR_HEIGHT }}>
+                    {[0, 15, 30, 45].map((m) => (
+                      <div
+                        key={m}
+                        onClick={() => onSlotClick?.(day, h, m)}
+                        className="hover:bg-secondary/30 cursor-pointer"
+                        style={{ height: HOUR_HEIGHT / 4 }}
+                      />
+                    ))}
+                  </div>
                 ))}
                 {isToday && <CurrentTimeLine hourHeight={HOUR_HEIGHT} />}
                 {dayEvents.map((ev, i) => (

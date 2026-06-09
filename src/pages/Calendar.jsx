@@ -111,7 +111,7 @@ export default function CalendarPage() {
 
   // Event CRUD
   const openNewEvent = (d) => setEventDialog({ open: true, event: null, date: d || date });
-  const openSlot = (day, hour) => setEventDialog({ open: true, event: null, date: setMinutes(setHours(day, hour), 0) });
+  const openSlot = (day, hour, minute = 0) => setEventDialog({ open: true, event: null, date: setMinutes(setHours(day, hour), minute) });
 
   const saveEvent = async (payload) => {
     if (eventDialog.event) {
