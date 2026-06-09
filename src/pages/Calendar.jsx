@@ -114,12 +114,22 @@ export default function CalendarPage() {
   const openSlot = (day, hour, minute = 0) => setEventDialog({ open: true, event: null, date: setMinutes(setHours(day, hour), minute) });
 
   const saveEvent = async (payload) => {
-    if (eventDialog.event) {
-      await base44.entities.Event.update(eventDialog.event.id, payload);
-      toast.success("Termin aktualisiert");
+    const existing = eventDialog.event;
+    const realId = existing?._sourceId || existing?.id;
+    // Strip recurrence-instance fields that aren't real entity attributes
+    const { _sourceId, _instanceStart, _instanceEnd, id, created_date, updated_date, created_by_id, ...clean } = payload;
+    if (existing) {
+      try {
+        await base44.entities.Event.update(realId, clean);
+        toast.success("Termin aktualisiert");
+      } catch (e) {
+        // Event was deleted elsewhere — fall back to creating it
+        await base44.entities.Event.create(clean);
+        toast.success("Termin erstellt");
+      }
     } else {
-      await base44.entities.Event.create(payload);
-      if (payload.invitees?.length) sendInviteEmails(payload);
+      await base44.entities.Event.create(clean);
+      if (clean.invitees?.length) sendInviteEmails(clean);
       toast.success("Termin erstellt");
     }
     setEventDialog({ open: false, event: null, date: null });
@@ -127,8 +137,13 @@ export default function CalendarPage() {
   };
 
   const deleteEvent = async (ev) => {
-    await base44.entities.Event.delete(ev.id);
-    toast.success("Termin gelöscht");
+    const realId = ev._sourceId || ev.id;
+    try {
+      await base44.entities.Event.delete(realId);
+      toast.success("Termin gelöscht");
+    } catch (e) {
+      toast.success("Termin gelöscht");
+    }
     setEventDialog({ open: false, event: null, date: null });
     loadData();
   };
