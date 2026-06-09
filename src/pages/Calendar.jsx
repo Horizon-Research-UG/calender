@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths,
   addWeeks, subWeeks, addDays, subDays, format, setHours, setMinutes,
+  setSeconds, setMilliseconds,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -111,7 +112,10 @@ export default function CalendarPage() {
 
   // Event CRUD
   const openNewEvent = (d) => setEventDialog({ open: true, event: null, date: d || date });
-  const openSlot = (day, hour, minute = 0) => setEventDialog({ open: true, event: null, date: setMinutes(setHours(day, hour), minute) });
+  const openSlot = (day, hour, minute = 0) => {
+    const start = setSeconds(setMilliseconds(setMinutes(setHours(day, hour), minute), 0), 0);
+    setEventDialog({ open: true, event: null, date: start });
+  };
 
   const saveEvent = async (payload) => {
     const existing = eventDialog.event;
