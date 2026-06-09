@@ -2,8 +2,9 @@ import React from "react";
 
 // Analog clock time picker. Two stages: pick hour, then pick minute.
 export default function ClockPicker({ hour, minute, onChange, onDone }) {
-  const [mode, setMode] = React.useState("hour"); // "hour" | "minute"
+  const [mode, setMode] = React.useState(minute !== 0 ? "minute" : "hour"); // "hour" | "minute"
   const clockRef = React.useRef(null);
+  const minuteRef = React.useRef(null);
 
   const isHour = mode === "hour";
   const count = isHour ? 12 : 60;
@@ -86,12 +87,18 @@ export default function ClockPicker({ hour, minute, onChange, onDone }) {
             if (isNaN(h)) h = 0;
             if (h > 23) h = 23;
             onChange(h, minute);
+            // Auto-jump to minutes once the hour is unambiguous (2 digits or > 2)
+            if (raw.length >= 2 || parseInt(raw, 10) > 2) {
+              setMode("minute");
+              setTimeout(() => { minuteRef.current?.focus(); minuteRef.current?.select(); }, 0);
+            }
           }}
           className={`w-14 text-center px-2 py-0.5 rounded-md outline-none focus:ring-2 focus:ring-primary/40
             ${isHour ? "bg-primary/10 text-primary" : "text-foreground"}`}
         />
         <span>:</span>
         <input
+          ref={minuteRef}
           type="text"
           inputMode="numeric"
           value={String(minute).padStart(2, "0")}
