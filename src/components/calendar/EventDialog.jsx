@@ -129,46 +129,6 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Kategorie</Label>
-              <Select value={form.category} onValueChange={(v) => set("category", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Wiederholung</Label>
-              <Select value={form.recurrence.frequency} onValueChange={(v) => setRec("frequency", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Keine</SelectItem>
-                  <SelectItem value="daily">Täglich</SelectItem>
-                  <SelectItem value="weekly">Wöchentlich</SelectItem>
-                  <SelectItem value="monthly">Monatlich</SelectItem>
-                  <SelectItem value="yearly">Jährlich</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {form.recurrence.frequency !== "none" && (
-            <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-secondary/50">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Alle (Intervall)</Label>
-                <Input type="number" min="1" value={form.recurrence.interval}
-                  onChange={(e) => setRec("interval", parseInt(e.target.value) || 1)} />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Endet am (optional)</Label>
-                <Input type="date" value={form.recurrence.end_date || ""}
-                  onChange={(e) => setRec("end_date", e.target.value)} />
-              </div>
-            </div>
-          )}
-
           <button
             type="button"
             onClick={() => setShowMore((s) => !s)}
@@ -180,6 +140,46 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
 
           {showMore && (
             <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Kategorie</Label>
+                  <Select value={form.category} onValueChange={(v) => set("category", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Wiederholung</Label>
+                  <Select value={form.recurrence.frequency} onValueChange={(v) => setRec("frequency", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Keine</SelectItem>
+                      <SelectItem value="daily">Täglich</SelectItem>
+                      <SelectItem value="weekly">Wöchentlich</SelectItem>
+                      <SelectItem value="monthly">Monatlich</SelectItem>
+                      <SelectItem value="yearly">Jährlich</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {form.recurrence.frequency !== "none" && (
+                <div className="grid grid-cols-2 gap-3 p-3 rounded-lg bg-secondary/50">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Alle (Intervall)</Label>
+                    <Input type="number" min="1" value={form.recurrence.interval}
+                      onChange={(e) => setRec("interval", parseInt(e.target.value) || 1)} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Endet am (optional)</Label>
+                    <Input type="date" value={form.recurrence.end_date || ""}
+                      onChange={(e) => setRec("end_date", e.target.value)} />
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Ort</Label>
                 <div className="relative">
