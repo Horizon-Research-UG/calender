@@ -231,7 +231,7 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
 
         <DialogFooter className="gap-2 sm:gap-0">
           {event && (
-            <Button variant="ghost" onClick={() => onDelete(event)} className="text-destructive hover:text-destructive hover:bg-destructive/10 mr-auto">
+            <Button type="button" variant="ghost" onClick={() => onDelete(event)} className="text-destructive hover:text-destructive hover:bg-destructive/10 mr-auto">
               <Trash2 className="w-4 h-4 mr-2" /> Löschen
             </Button>
           )}
