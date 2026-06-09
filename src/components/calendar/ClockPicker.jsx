@@ -81,6 +81,7 @@ export default function ClockPicker({ hour, minute, onChange, onDone }) {
           inputMode="numeric"
           value={String(hour).padStart(2, "0")}
           onFocus={(e) => { setMode("hour"); e.target.select(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onDone?.(); } }}
           onChange={(e) => {
             const raw = e.target.value.replace(/\D/g, "").slice(-2);
             let h = parseInt(raw, 10);
@@ -103,6 +104,7 @@ export default function ClockPicker({ hour, minute, onChange, onDone }) {
           inputMode="numeric"
           value={String(minute).padStart(2, "0")}
           onFocus={(e) => { setMode("minute"); e.target.select(); }}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onDone?.(); } }}
           onChange={(e) => {
             const raw = e.target.value.replace(/\D/g, "").slice(-2);
             let m = parseInt(raw, 10);
