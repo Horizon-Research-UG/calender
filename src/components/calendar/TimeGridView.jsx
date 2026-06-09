@@ -1,5 +1,5 @@
 import React from "react";
-import { startOfWeek, addDays, isSameDay, format, differenceInMinutes, startOfDay } from "date-fns";
+import { startOfWeek, addDays, isSameDay, format, differenceInMinutes, startOfDay, setHours, setMinutes, setSeconds, setMilliseconds } from "date-fns";
 import { de } from "date-fns/locale";
 import { getContrastText } from "@/lib/calendarColors";
 import { getIcon } from "@/lib/eventIcons";
@@ -33,7 +33,9 @@ function PositionedEvent({ event, color, onClick, hourHeight }) {
   );
 }
 
-export default function TimeGridView({ date, events, calendarsById, mode, onEventClick, onSlotClick }) {
+const SLOT_MIN = 15;
+
+export default function TimeGridView({ date, events, calendarsById, mode, onEventClick, onSlotSelect }) {
   const isDay = mode === "day";
   const HOUR_HEIGHT = isDay ? 80 : 56;
   const days = isDay
@@ -44,6 +46,44 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
   React.useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 7 * HOUR_HEIGHT;
   }, [HOUR_HEIGHT]);
+
+  // Drag-to-select state: { day, startSlot, endSlot } in 15-min slot indices
+  const [drag, setDrag] = React.useState(null);
+  const dragRef = React.useRef(null);
+
+  const slotFromOffset = (offsetY) => {
+    const slot = Math.floor(offsetY / (HOUR_HEIGHT / 4));
+    return Math.max(0, Math.min(95, slot));
+  };
+
+  const beginDrag = (e, day) => {
+    const slot = slotFromOffset(e.nativeEvent.offsetY);
+    const next = { day, startSlot: slot, endSlot: slot };
+    dragRef.current = next;
+    setDrag(next);
+  };
+  const moveDrag = (e) => {
+    if (!dragRef.current) return;
+    const slot = slotFromOffset(e.nativeEvent.offsetY);
+    const next = { ...dragRef.current, endSlot: slot };
+    dragRef.current = next;
+    setDrag(next);
+  };
+  const endDrag = () => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    setDrag(null);
+    if (!d) return;
+    const lo = Math.min(d.startSlot, d.endSlot);
+    const hi = Math.max(d.startSlot, d.endSlot);
+    // single click → default to one slot; drag → inclusive end slot + 1
+    const startMin = lo * SLOT_MIN;
+    const endMin = (hi + 1) * SLOT_MIN;
+    const base = setSeconds(setMilliseconds(d.day, 0), 0);
+    const start = setMinutes(setHours(base, 0), startMin);
+    const end = setMinutes(setHours(base, 0), endMin);
+    onSlotSelect?.(start, end);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -91,20 +131,31 @@ export default function TimeGridView({ date, events, calendarsById, mode, onEven
           {days.map((day) => {
             const dayEvents = events.filter((e) => isSameDay(e._instanceStart, day) && !e.all_day);
             const isToday = isSameDay(day, new Date());
+            const isDragDay = drag && isSameDay(drag.day, day);
+            const dragLo = isDragDay ? Math.min(drag.startSlot, drag.endSlot) : 0;
+            const dragHi = isDragDay ? Math.max(drag.startSlot, drag.endSlot) : 0;
             return (
               <div key={day.toISOString()} className="flex-1 relative border-l border-border">
                 {HOURS.map((h) => (
-                  <div key={h} className="border-b border-border/50" style={{ height: HOUR_HEIGHT }}>
-                    {[0, 15, 30, 45].map((m) => (
-                      <div
-                        key={m}
-                        onClick={() => onSlotClick?.(day, h, m)}
-                        className="hover:bg-secondary/30 cursor-pointer"
-                        style={{ height: HOUR_HEIGHT / 4 }}
-                      />
-                    ))}
-                  </div>
+                  <div key={h} className="border-b border-border/50 pointer-events-none" style={{ height: HOUR_HEIGHT }} />
                 ))}
+                {/* Drag-select overlay */}
+                <div
+                  className="absolute inset-0 cursor-pointer"
+                  onMouseDown={(e) => beginDrag(e, day)}
+                  onMouseMove={moveDrag}
+                  onMouseUp={endDrag}
+                  onMouseLeave={() => { if (dragRef.current) endDrag(); }}
+                />
+                {isDragDay && (
+                  <div
+                    className="absolute left-1 right-1 rounded-lg bg-primary/20 border border-primary/40 pointer-events-none z-[5]"
+                    style={{
+                      top: dragLo * (HOUR_HEIGHT / 4),
+                      height: (dragHi - dragLo + 1) * (HOUR_HEIGHT / 4),
+                    }}
+                  />
+                )}
                 {isToday && <CurrentTimeLine hourHeight={HOUR_HEIGHT} />}
                 {dayEvents.map((ev, i) => (
                   <PositionedEvent

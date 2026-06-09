@@ -34,7 +34,7 @@ function toInput(dt) {
   return format(new Date(dt), "yyyy-MM-dd'T'HH:mm");
 }
 
-export default function EventDialog({ open, onOpenChange, event, calendars, defaultDate, onSave, onDelete }) {
+export default function EventDialog({ open, onOpenChange, event, calendars, defaultDate, defaultEnd, onSave, onDelete }) {
   const [form, setForm] = React.useState(empty());
   const [inviteEmail, setInviteEmail] = React.useState("");
   const [showMore, setShowMore] = React.useState(false);
@@ -46,7 +46,7 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
     } else {
       const base = defaultDate instanceof Date ? defaultDate : new Date();
       const start = new Date(base);
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      const end = defaultEnd instanceof Date ? new Date(defaultEnd) : new Date(start.getTime() + 60 * 60 * 1000);
       const personal = calendars.find((c) => c.type === "personal");
       setForm(empty({
         start_time: toInput(start),
@@ -56,7 +56,7 @@ export default function EventDialog({ open, onOpenChange, event, calendars, defa
     }
     setInviteEmail("");
     setShowMore(false);
-  }, [open, event, defaultDate, calendars]);
+  }, [open, event, defaultDate, defaultEnd, calendars]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const setRec = (k, v) => setForm((f) => ({ ...f, recurrence: { ...f.recurrence, [k]: v } }));

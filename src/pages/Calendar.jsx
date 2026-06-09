@@ -2,8 +2,7 @@ import React from "react";
 import { base44 } from "@/api/base44Client";
 import {
   startOfMonth, endOfMonth, startOfWeek, endOfWeek, addMonths, subMonths,
-  addWeeks, subWeeks, addDays, subDays, format, setHours, setMinutes,
-  setSeconds, setMilliseconds,
+  addWeeks, subWeeks, addDays, subDays, format,
 } from "date-fns";
 import { de } from "date-fns/locale";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -32,7 +31,7 @@ export default function CalendarPage() {
   const [loading, setLoading] = React.useState(true);
 
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [eventDialog, setEventDialog] = React.useState({ open: false, event: null, date: null });
+  const [eventDialog, setEventDialog] = React.useState({ open: false, event: null, date: null, endDate: null });
   const [calDialog, setCalDialog] = React.useState({ open: false, calendar: null });
   const [invitesOpen, setInvitesOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
@@ -111,10 +110,9 @@ export default function CalendarPage() {
     setHiddenIds((h) => h.includes(id) ? h.filter((x) => x !== id) : [...h, id]);
 
   // Event CRUD
-  const openNewEvent = (d) => setEventDialog({ open: true, event: null, date: d || date });
-  const openSlot = (day, hour, minute = 0) => {
-    const start = setSeconds(setMilliseconds(setMinutes(setHours(day, hour), minute), 0), 0);
-    setEventDialog({ open: true, event: null, date: start });
+  const openNewEvent = (d) => setEventDialog({ open: true, event: null, date: d || date, endDate: null });
+  const openSlot = (start, end) => {
+    setEventDialog({ open: true, event: null, date: start, endDate: end });
   };
 
   const saveEvent = async (payload) => {
@@ -136,7 +134,7 @@ export default function CalendarPage() {
       if (clean.invitees?.length) sendInviteEmails(clean);
       toast.success("Termin erstellt");
     }
-    setEventDialog({ open: false, event: null, date: null });
+    setEventDialog({ open: false, event: null, date: null, endDate: null });
     loadData();
   };
 
@@ -148,7 +146,7 @@ export default function CalendarPage() {
     } catch (e) {
       toast.success("Termin gelöscht");
     }
-    setEventDialog({ open: false, event: null, date: null });
+    setEventDialog({ open: false, event: null, date: null, endDate: null });
     loadData();
   };
 
@@ -293,15 +291,15 @@ export default function CalendarPage() {
             <MonthView
               date={date} events={visibleEvents} calendarsById={calendarsById}
               onSelectDate={(d) => { setDate(d); setView("day"); }}
-              onEventClick={(ev) => setEventDialog({ open: true, event: ev, date: null })}
+              onEventClick={(ev) => setEventDialog({ open: true, event: ev, date: null, endDate: null })}
               onDayClick={(d) => openNewEvent(d)}
             />
           )}
           {(view === "week" || view === "day") && (
             <TimeGridView
               date={date} events={visibleEvents} calendarsById={calendarsById} mode={view}
-              onEventClick={(ev) => setEventDialog({ open: true, event: ev, date: null })}
-              onSlotClick={openSlot}
+              onEventClick={(ev) => setEventDialog({ open: true, event: ev, date: null, endDate: null })}
+              onSlotSelect={openSlot}
             />
           )}
         </div>
@@ -313,6 +311,7 @@ export default function CalendarPage() {
         event={eventDialog.event}
         calendars={calendars}
         defaultDate={eventDialog.date}
+        defaultEnd={eventDialog.endDate}
         onSave={saveEvent}
         onDelete={deleteEvent}
       />
